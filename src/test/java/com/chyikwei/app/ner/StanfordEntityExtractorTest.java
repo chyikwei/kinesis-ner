@@ -8,13 +8,12 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
-public class EntiityExtractorTest {
+public class StanfordEntityExtractorTest {
 
-  @Ignore
   @Test
   public void testStanfordSingleSentenceAnnotate() throws Exception {
     final String sentence = "Jim bought 300 shares of Acme Corp. in 2006.\n";
-    EntiityExtractor ner = new EntiityExtractor();
+    EntityExtractInterface ner = StanfordEntityExtractor.getInstance();
     List<Pair<String, String>> entities = ner.annotate(sentence);
 
     assertEquals(4, entities.size());

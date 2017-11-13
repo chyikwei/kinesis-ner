@@ -9,18 +9,27 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 
-public class EntiityExtractor {
+public class StanfordEntityExtractor implements EntityExtractInterface{
   public static final String NO_ENTITY = "O";
   private StanfordCoreNLP pipeline;
   private String entityType;
   private StringBuilder tokenBuilder;
+  private static StanfordEntityExtractor instance;
 
-  public EntiityExtractor() {
+  private StanfordEntityExtractor() {
     Properties props = new Properties();
     props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner");
     pipeline = new StanfordCoreNLP(props);
     tokenBuilder = new StringBuilder();
   }
+
+  public static StanfordEntityExtractor getInstance(){
+    if (instance == null) {
+      instance = new StanfordEntityExtractor();
+    }
+    return instance;
+  }
+
 
   public List<Pair<String, String>> annotate(String text) {
     Annotation document = new Annotation(text);
