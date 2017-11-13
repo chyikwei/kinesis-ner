@@ -30,13 +30,13 @@ public class StanfordEntityExtractor implements EntityExtractInterface{
     return instance;
   }
 
-
+  @Override
   public List<Pair<String, String>> annotate(String text) {
     Annotation document = new Annotation(text);
     pipeline.annotate(document);
     List<CoreMap> sentences = document.get(SentencesAnnotation.class);
 
-    List<Pair<String, String>> entities = new ArrayList<Pair<String, String>>();
+    List<Pair<String, String>> entities = new ArrayList<>();
     for (CoreMap sentence : sentences) {
       // reset token tracking
       resetEntityTracker();

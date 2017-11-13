@@ -25,6 +25,7 @@ public class NewsTextRecordInterface implements TextRecordInterface {
     this.text = textStr;
   }
 
+  @Override
   public UUID getUUID() {
         return uuid;
     }
@@ -58,6 +59,7 @@ public class NewsTextRecordInterface implements TextRecordInterface {
     return hash;
   }
 
+  @Override
   public List<Pair<String, String>> getTextFields() {
     List<Pair<String, String>> textList = new ArrayList<Pair<String, String>>();
     textList.add(ImmutablePair.of(TITLE_FIELD_NAME, title));
