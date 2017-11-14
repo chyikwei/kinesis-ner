@@ -13,19 +13,20 @@ public class NewsTextRecordTest {
 
   @Test
   public void testCreateRecordFromJson() throws Exception {
-    NewsTextRecordInterface t = new NewsTextRecordInterface(UUID.randomUUID(), "Test Title", "Test text");
+    NewsTextRecord t = new NewsTextRecord(UUID.randomUUID(), "Test Title", "Test text");
     String jsonStr = (new Gson()).toJson(t);
-    NewsTextRecordInterface t2 = NewsTextRecordInterface.fromJson(jsonStr);
+    NewsTextRecord t2 = NewsTextRecord.fromJson(jsonStr);
     assertEquals(t, t2);
   }
 
   @Test
   public void testGetTextFields() throws Exception {
-    NewsTextRecordInterface t = new NewsTextRecordInterface(UUID.randomUUID(), "Test Title", "Test text");
+    NewsTextRecord t = new NewsTextRecord(UUID.randomUUID(), "Test Title", "Test text");
     List<Pair<String, String>> tupleList = t.getTextFields();
-    assertEquals(NewsTextRecordInterface.TITLE_FIELD_NAME, tupleList.get(0).getLeft());
+
+    assertEquals(NewsTextRecord.TITLE_FIELD_NAME, tupleList.get(0).getLeft());
     assertEquals("Test Title", tupleList.get(0).getRight());
-    assertEquals(NewsTextRecordInterface.TEXT_FIELD_NAME, tupleList.get(1).getLeft());
+    assertEquals(NewsTextRecord.TEXT_FIELD_NAME, tupleList.get(1).getLeft());
     assertEquals("Test text", tupleList.get(1).getRight());
   }
 }

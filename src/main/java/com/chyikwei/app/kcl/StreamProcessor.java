@@ -8,7 +8,8 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharacterCodingException;
 import java.util.Map;
 
-import com.chyikwei.app.ner.NewsTextRecordInterface;
+import com.chyikwei.app.ner.*;
+import com.chyikwei.app.persistence.EntityPersisterInterface;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,10 +28,6 @@ import com.amazonaws.services.kinesis.clientlibrary.exceptions.ShutdownException
 import com.amazonaws.services.kinesis.clientlibrary.exceptions.ThrottlingException;
 
 import com.amazonaws.services.kinesis.clientlibrary.lib.worker.ShutdownReason;
-
-import com.chyikwei.app.ner.TextRecordInterface;
-import com.chyikwei.app.ner.EntityExtractInterface;
-import com.chyikwei.app.ner.StanfordEntityExtractor;
 
 
 /**
@@ -55,7 +52,11 @@ public class StreamProcessor implements IRecordProcessor {
   private String shardId;
   private long nextCheckpointTimeInMillis;
 
+  // extractor
   private EntityExtractInterface entityExtractor;
+
+  // persister
+  private EntityPersisterInterface persiter;
 
 
   /**
@@ -133,14 +134,14 @@ public class StreamProcessor implements IRecordProcessor {
 
     try {
       String data = decoder.decode(record.getData()).toString();
-      TextRecordInterface textRecord = NewsTextRecordInterface.fromJson(data);
+      TextRecordInterface textRecord = NewsTextRecord.fromJson(data);
 
       // extract etities from each field
-      Map<String, List<Pair<String, String>>> entityMap = new HashMap<>();
+      Map<String, List<Entity>> entityMap = new HashMap<>();
       for (Pair<String, String> pair : textRecord.getTextFields()) {
         String field = pair.getLeft();
         String text = pair.getRight();
-        List<Pair<String, String>> entities = entityExtractor.annotate(text);
+        List<Entity> entities = entityExtractor.annotate(text);
         entityMap.put(field, entities);
       }
 
@@ -157,7 +158,7 @@ public class StreamProcessor implements IRecordProcessor {
     }
   }
 
-  private void saveEntities(Map<String, List<Pair<String, String>>> entityMap) {
+  private void saveEntities(Map<String, List<Entity>> entityMap) {
     // TODO: save entities
   }
 

@@ -4,8 +4,6 @@ import edu.stanford.nlp.ling.CoreAnnotations.*;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.pipeline.*;
 import edu.stanford.nlp.util.CoreMap;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 
@@ -31,12 +29,12 @@ public class StanfordEntityExtractor implements EntityExtractInterface{
   }
 
   @Override
-  public List<Pair<String, String>> annotate(String text) {
+  public List<Entity> annotate(String text) {
     Annotation document = new Annotation(text);
     pipeline.annotate(document);
     List<CoreMap> sentences = document.get(SentencesAnnotation.class);
 
-    List<Pair<String, String>> entities = new ArrayList<>();
+    List<Entity> entities = new ArrayList<>();
     for (CoreMap sentence : sentences) {
       // reset token tracking
       resetEntityTracker();
@@ -87,7 +85,7 @@ public class StanfordEntityExtractor implements EntityExtractInterface{
     tokenBuilder.setLength(0);
   }
 
-  private Pair<String, String> currentEntity() {
-    return ImmutablePair.of(entityType, tokenBuilder.toString());
+  private Entity currentEntity() {
+    return new Entity(entityType, tokenBuilder.toString());
   }
 }
