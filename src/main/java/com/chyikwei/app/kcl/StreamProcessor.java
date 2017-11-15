@@ -56,8 +56,12 @@ public class StreamProcessor implements IRecordProcessor {
   private EntityExtractInterface entityExtractor;
 
   // persister
-  private EntityPersisterInterface persiter;
+  private EntityPersisterInterface entityPersiter;
 
+  public StreamProcessor(EntityExtractInterface extractor, EntityPersisterInterface persiter) {
+    entityExtractor = extractor;
+    entityPersiter = persiter;
+  }
 
   /**
    * initialize NER
@@ -67,7 +71,6 @@ public class StreamProcessor implements IRecordProcessor {
   @Override
   public void initialize(InitializationInput initializationInput) {
     shardId = initializationInput.getShardId();
-    entityExtractor = StanfordEntityExtractor.getInstance();
 
     if (LOG.isDebugEnabled()) {
       LOG.debug(String.format("initialize: shard %s", shardId));
