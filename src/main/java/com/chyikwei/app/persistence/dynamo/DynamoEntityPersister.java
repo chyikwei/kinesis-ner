@@ -1,6 +1,9 @@
 package com.chyikwei.app.persistence.dynamo;
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.document.DynamoDB;
+import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.model.KeySchemaElement;
+import com.amazonaws.services.kinesisfirehose.model.InvalidArgumentException;
 import com.chyikwei.app.ner.ObjectEntitiesInterface;
 import com.chyikwei.app.persistence.EntityPersisterInterface;
 
@@ -11,11 +14,14 @@ import java.util.List;
  */
 public class DynamoEntityPersister implements EntityPersisterInterface {
 
+  private DynamoDB dynamoDB;
   private DynamoEntityPersisterConfig config;
+
   /**
    * create class
    */
-  public DynamoEntityPersister(DynamoEntityPersisterConfig config) {
+  public DynamoEntityPersister(DynamoDB ddb, DynamoEntityPersisterConfig config) {
+    this.dynamoDB = ddb;
     this.config = config;
   }
 
@@ -25,8 +31,8 @@ public class DynamoEntityPersister implements EntityPersisterInterface {
   @Override
   public void initialize() {
     // check and create table
-    createTableIfNotExisted();
-
+    //TODO: fix this
+    //createTableIfNotExisted();
   }
 
   /**
@@ -36,10 +42,25 @@ public class DynamoEntityPersister implements EntityPersisterInterface {
    *
    */
   private void createTableIfNotExisted() {
+
     String tableName = config.getTableName();
     String hashKeyName = config.getHashKeyName();
 
+    assert dynamoDB != null;
 
+    Table table = dynamoDB.getTable(tableName);
+
+    if (table != null) {
+      List<KeySchemaElement> schemas = table.getDescription().getKeySchema();
+
+      if (schemas != null  && schemas.size() > 1) {
+        //TODO: use right expcetion
+        throw new InvalidArgumentException("table alreday exists with differnt KeySchema size");
+      }
+      if (schemas != null && !hashKeyName.equals(schemas.get(0).getAttributeName())) {
+        throw new InvalidArgumentException("table alreday exists with differnt hashKey");
+      }
+    }
   }
 
   /**

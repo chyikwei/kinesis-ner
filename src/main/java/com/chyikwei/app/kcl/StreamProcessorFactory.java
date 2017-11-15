@@ -1,6 +1,6 @@
 package com.chyikwei.app.kcl;
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.kinesis.clientlibrary.interfaces.v2.IRecordProcessor;
 import com.amazonaws.services.kinesis.clientlibrary.interfaces.v2.IRecordProcessorFactory;
 import com.chyikwei.app.ner.EntityExtractInterface;
@@ -16,7 +16,9 @@ import com.chyikwei.app.persistence.dynamo.DynamoEntityPersisterConfig;
 public class StreamProcessorFactory implements IRecordProcessorFactory {
 
   private DynamoEntityPersisterConfig dynamoConfig;
-  public StreamProcessorFactory(DynamoEntityPersisterConfig config) {
+  private DynamoDB dynamoDB;
+  public StreamProcessorFactory(DynamoDB ddb, DynamoEntityPersisterConfig config) {
+    dynamoDB = ddb;
     dynamoConfig = config;
   }
 
@@ -26,7 +28,7 @@ public class StreamProcessorFactory implements IRecordProcessorFactory {
   @Override
   public IRecordProcessor createProcessor() {
     EntityExtractInterface entityExtractor = StanfordEntityExtractor.getInstance();
-    EntityPersisterInterface persister = new DynamoEntityPersister(dynamoConfig);
+    EntityPersisterInterface persister = new DynamoEntityPersister(dynamoDB, dynamoConfig);
     return new StreamProcessor(entityExtractor, persister);
   }
 }

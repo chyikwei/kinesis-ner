@@ -1,18 +1,15 @@
 package com.chyikwei.app.persistence.dynamo;
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 
 /**
  * Configuration of DynamoDB entity persister
  */
 public class DynamoEntityPersisterConfig {
 
-  private AmazonDynamoDB dynamoDB;
   private String tableName;
   private String hashKeyName;
 
-  public DynamoEntityPersisterConfig(AmazonDynamoDB ddb, String table, String hashKey) {
-    this.dynamoDB = ddb;
+  public DynamoEntityPersisterConfig(String table, String hashKey) {
     this.tableName = table;
     this.hashKeyName = hashKey;
   }
@@ -34,14 +31,4 @@ public class DynamoEntityPersisterConfig {
   public String getHashKeyName() {
     return hashKeyName;
   }
-
-  /**
-   * Get AmazonDynamoDB
-   *
-   * @return AmazonDynamoDB instance
-   */
-  public AmazonDynamoDB getDynamoDB() {
-    return dynamoDB;
-  }
-
 }

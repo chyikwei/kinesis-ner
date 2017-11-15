@@ -11,6 +11,7 @@ import static org.junit.Assert.*;
 
 public class StanfordEntityExtractorTest {
 
+  @Ignore("temporary ignored to speed up test")
   @Test
   public void testSingleSentenceAnnotate() throws Exception {
     final String sentence = "Jim bought 300 shares of Acme Corp. in 2006.\n";
