@@ -2,15 +2,20 @@ package com.chyikwei.app.persistence.dynamo;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
+import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.local.embedded.DynamoDBEmbedded;
 import com.amazonaws.services.dynamodbv2.model.*;
+import com.chyikwei.app.ner.Entity;
+import com.chyikwei.app.ner.NewsEntities;
+import com.chyikwei.app.ner.ObjectEntitiesInterface;
+import com.chyikwei.app.persistence.dynamo.util.TableUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 
-import java.util.ArrayList;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -21,27 +26,55 @@ public class DynamoEntityPersisterTest {
   DynamoEntityPersisterConfig config;
   DynamoEntityPersister persister;
 
-  final String TEST_TABLE_NAME = "DDB_TEST_TABLE";
-  final String TEST_TABLE_KEY = "DDB_TEST_KEY";
+  String test_table_name;
+  String test_key_name;
+  Random random;
 
   @Before
   public void setUp() throws Exception {
+    random = new java.util.Random();
+
+    test_table_name = TableUtils.randomTableName();
+    test_key_name = TableUtils.randomKeyName();
+
     AmazonDynamoDB client = DynamoDBEmbedded.create().amazonDynamoDB();
     dynamoDB = new DynamoDB(client);
-    config = new DynamoEntityPersisterConfig(TEST_TABLE_NAME, TEST_TABLE_KEY);
+    config = new DynamoEntityPersisterConfig(test_table_name, test_key_name);
     persister = new DynamoEntityPersister(dynamoDB, config);
   }
 
   @After
   public void tearDown() throws Exception {
-    //client.shutdown();
+    Table table = dynamoDB.getTable(test_table_name);
+    table.delete();
+    table.waitForDelete();
   }
 
   @Test
   public void initializeWithTableExisted() throws Exception {
-    Table existed = createTable(TEST_TABLE_NAME, TEST_TABLE_KEY);
-    assertTrue(persister != null);
+    Table existed = createTable(test_table_name, test_key_name);
     persister.initialize();
+  }
+
+
+  @Test(expected = TableSchemaMismatchException.class)
+  public void initializeWithInvalidTableExisted() throws Exception {
+    createTable(test_table_name, "INVALID_KEY");
+    persister.initialize();
+  }
+
+  @Test
+  public void persister() throws Exception {
+
+    List<ObjectEntitiesInterface> objList = createNewsEntitiesList(100);
+    persister.initialize();
+    persister.persister(objList);
+
+    // verify DDB result
+    Table table = dynamoDB.getTable(config.getTableName());
+    for (ObjectEntitiesInterface obj : objList) {
+      checkTableContains(table, obj);
+    }
   }
 
   private Table createTable(String tableName, String hasKey) {
@@ -63,5 +96,51 @@ public class DynamoEntityPersisterTest {
 
     Table table = dynamoDB.createTable(request);
     return table;
+  }
+
+
+  private List<ObjectEntitiesInterface> createNewsEntitiesList(int size) {
+    List<ObjectEntitiesInterface> newsList = new LinkedList<>();
+    for (int i=0; i < size; i++) {
+      newsList.add(createNewsEntities());
+    }
+    return newsList;
+  }
+
+  private ObjectEntitiesInterface createNewsEntities() {
+    ObjectEntitiesInterface news = new NewsEntities(UUID.randomUUID());
+    for (int i=0; i < 10; i++) {
+      String field = "Field_" + i;
+      for (int j=0; j < 10; j++) {
+        String type;
+        if (random.nextInt(2) % 2 == 0) {
+          type = "PERSON";
+        } else {
+          type = "ORGANIZATION";
+        }
+        news.addEntities(field, new Entity(type, "entity_" + j));
+      }
+    }
+    return news;
+  }
+
+  private void checkTableContains(Table table, ObjectEntitiesInterface obj) {
+
+    String key = obj.getUUID().toString();
+    Item item = table.getItem(config.getHashKeyName(), key);
+    assertNotNull(item);
+
+    for (Map.Entry<String, Set<Entity>> entry: obj.getEntities().entrySet()) {
+      String field = entry.getKey();
+
+      // check field in item
+      assertTrue(item.hasAttribute(field));
+
+      Set<String> s = item.getStringSet(field);
+      for (Entity entity : entry.getValue()) {
+        // check entity in field
+        assertTrue(s.contains(entity.toString()));
+      }
+    }
   }
 }

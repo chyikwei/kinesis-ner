@@ -1,13 +1,19 @@
 package com.chyikwei.app.persistence.dynamo;
 
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
+import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement;
-import com.amazonaws.services.kinesisfirehose.model.InvalidArgumentException;
+import com.chyikwei.app.ner.Entity;
 import com.chyikwei.app.ner.ObjectEntitiesInterface;
 import com.chyikwei.app.persistence.EntityPersisterInterface;
+import com.chyikwei.app.persistence.dynamo.util.TableUtils;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static com.chyikwei.app.persistence.dynamo.util.TableUtils.getOrcreateTable;
 
 /**
  * DynamoDB implementation of EntityPersister
@@ -16,6 +22,7 @@ public class DynamoEntityPersister implements EntityPersisterInterface {
 
   private DynamoDB dynamoDB;
   private DynamoEntityPersisterConfig config;
+  private Table dynamoTable;
 
   /**
    * create class
@@ -31,8 +38,7 @@ public class DynamoEntityPersister implements EntityPersisterInterface {
   @Override
   public void initialize() {
     // check and create table
-    //TODO: fix this
-    //createTableIfNotExisted();
+    createTableIfNotExisted();
   }
 
   /**
@@ -43,23 +49,16 @@ public class DynamoEntityPersister implements EntityPersisterInterface {
    */
   private void createTableIfNotExisted() {
 
-    String tableName = config.getTableName();
-    String hashKeyName = config.getHashKeyName();
+    dynamoTable = getOrcreateTable(dynamoDB, config);
 
-    assert dynamoDB != null;
+    // check schema
+    List<KeySchemaElement> schemas = dynamoTable.describe().getKeySchema();
 
-    Table table = dynamoDB.getTable(tableName);
-
-    if (table != null) {
-      List<KeySchemaElement> schemas = table.getDescription().getKeySchema();
-
-      if (schemas != null  && schemas.size() > 1) {
-        //TODO: use right expcetion
-        throw new InvalidArgumentException("table alreday exists with differnt KeySchema size");
-      }
-      if (schemas != null && !hashKeyName.equals(schemas.get(0).getAttributeName())) {
-        throw new InvalidArgumentException("table alreday exists with differnt hashKey");
-      }
+    if (schemas != null && schemas.size() > 1) {
+      throw new TableSchemaMismatchException("table already exists with different KeySchema size");
+    }
+    if (schemas != null && !config.getHashKeyName().equals(schemas.get(0).getAttributeName())) {
+      throw new TableSchemaMismatchException("table already exists with different hashKey");
     }
   }
 
@@ -69,6 +68,15 @@ public class DynamoEntityPersister implements EntityPersisterInterface {
   @Override
   public void persister(List<ObjectEntitiesInterface> objectEntities) {
 
+    for (ObjectEntitiesInterface obj: objectEntities) {
+      persistSingleObject(obj);
+    }
+  }
+
+  private void persistSingleObject(ObjectEntitiesInterface obj) {
+    //TODO: change to batch write later
+    Item item = TableUtils.objectEntitiesToDynamoItem(obj, config);
+    dynamoTable.putItem(item);
   }
 
   /**
