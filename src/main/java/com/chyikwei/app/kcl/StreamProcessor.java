@@ -1,12 +1,11 @@
 package com.chyikwei.app.kcl;
 
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
 
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharacterCodingException;
-import java.util.Map;
 
 import com.chyikwei.app.ner.*;
 import com.chyikwei.app.persistence.EntityPersisterInterface;
@@ -75,6 +74,7 @@ public class StreamProcessor implements IRecordProcessor {
     if (LOG.isDebugEnabled()) {
       LOG.debug(String.format("initialize: shard %s", shardId));
     }
+    entityPersiter.initialize();
   }
 
 
@@ -139,17 +139,19 @@ public class StreamProcessor implements IRecordProcessor {
       String data = decoder.decode(record.getData()).toString();
       TextRecordInterface textRecord = NewsTextRecord.fromJson(data);
 
+      ObjectEntitiesInterface newsResult = new NewsEntities(textRecord.getUUID());
+
       // extract etities from each field
-      Map<String, List<Entity>> entityMap = new HashMap<>();
       for (Pair<String, String> pair : textRecord.getTextFields()) {
         String field = pair.getLeft();
         String text = pair.getRight();
         List<Entity> entities = entityExtractor.annotate(text);
-        entityMap.put(field, entities);
+        for (Entity ent : entities) {
+          newsResult.addEntities(field, ent);
+        }
       }
-
       // save entities
-      saveEntities(entityMap);
+      saveResult(newsResult);
 
       if (LOG.isDebugEnabled()) {
         LOG.info("processed: " + record.getSequenceNumber() + ", " + record.getPartitionKey() + ", " +
@@ -161,8 +163,9 @@ public class StreamProcessor implements IRecordProcessor {
     }
   }
 
-  private void saveEntities(Map<String, List<Entity>> entityMap) {
-    // TODO: save entities
+  private void saveResult(ObjectEntitiesInterface ents) {
+    entityPersiter.persister(Arrays.asList(ents));
+
   }
 
 
