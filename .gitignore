@@ -9,3 +9,7 @@
 # Maven
 log/
 target/
+
+libs/
+
+dependency-reduced-pom.xml

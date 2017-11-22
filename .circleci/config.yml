@@ -1,0 +1,32 @@
+version: 2
+jobs:
+  build:
+
+    working_directory: ~/kinesis-ner
+
+    environment:
+      # Customize the JVM maximum heap limit
+      MAVEN_OPTS: -Xmx1500m
+
+    docker:
+      - image: circleci/openjdk:8-jdk-browsers
+
+    steps:
+
+      - checkout
+
+      - restore_cache:
+          key: kinesis-ner-{{ checksum "pom.xml" }}
+          key: - kinesis-ner-
+
+      - run: mvn dependency:go-offline
+
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: kinesis-ner-{{ checksum "pom.xml" }}
+
+      - run: mvn integration-test
+
+      - store_test_results:
+          path: target/surefire-reports
