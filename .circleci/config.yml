@@ -17,7 +17,6 @@ jobs:
 
       - restore_cache:
           key: kinesis-ner-{{ checksum "pom.xml" }}
-          key: - kinesis-ner-
 
       - run: mvn dependency:go-offline
 
