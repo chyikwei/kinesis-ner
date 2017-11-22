@@ -1,4 +1,4 @@
-package com.chyikwei.app.ner;
+package com.chyikwei.app.model;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -9,36 +9,36 @@ import java.util.UUID;
 
 import static org.junit.Assert.*;
 
-public class NewsEntitiesTest {
-
+public class BaseMultiFieldEntitiesTest {
   static final int numField = 10;
   static final int numEntities = 20;
 
   UUID testId;
-  ObjectEntitiesInterface newsEntities;
-
+  MultiFieldEntities objEntities;
+  BaseMultiFieldEntitiesFactory factory;
 
   @Before
   public void setUp() throws Exception {
     testId = UUID.randomUUID();
-    newsEntities = new NewsEntities(testId);
+    factory = BaseMultiFieldEntitiesFactory.getInstance();
+    objEntities = factory.newObject(testId);
 
     for (int i=0; i < numField; i++) {
       for (int j=0; j < numEntities; j++) {
         Entity entity = new Entity("TYPE_" + i, "NAME_" + j);
-        newsEntities.addEntities("Field_" + i, entity);
+        objEntities.addEntities("Field_" + i, entity);
       }
     }
   }
 
   @Test
   public void getUUID() throws Exception {
-    assertEquals(testId, newsEntities.getUUID());
+    assertEquals(testId, objEntities.getUUID());
   }
 
   @Test
   public void getEntities() throws Exception {
-    Map<String, Set<Entity>> map = newsEntities.getEntities();
+    Map<String, Set<Entity>> map = objEntities.getEntities();
     for (int i=0; i < numField; i++) {
       String key = "Field_" + i;
       assertTrue(map.containsKey(key));
@@ -57,12 +57,12 @@ public class NewsEntitiesTest {
     Entity e_new = new Entity("TYPE_0", "NAME_0");
 
     // new field
-    assertTrue(newsEntities.addEntities("FIELD_" + numField, e_old));
+    assertTrue(objEntities.addEntities("FIELD_" + numField, e_old));
     // new entity
-    assertTrue(newsEntities.addEntities("FIELD_0", e_new));
+    assertTrue(objEntities.addEntities("FIELD_0", e_new));
 
     // duplicates
-    assertFalse(newsEntities.addEntities("FIELD_0", e_old));
+    assertFalse(objEntities.addEntities("FIELD_0", e_old));
   }
 
 }

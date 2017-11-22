@@ -1,5 +1,9 @@
-package com.chyikwei.app.ner;
+package com.chyikwei.app.model;
 
+/**
+ * Entity is a string tuple with type of this entity and the value of it.
+ * Example: ("PERSON", "John")
+ */
 public class Entity {
 
   public final String entityType;

@@ -1,6 +1,6 @@
 package com.chyikwei.app.ner;
 
-import org.apache.commons.lang3.tuple.Pair;
+import com.chyikwei.app.model.Entity;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -17,7 +17,7 @@ public class StanfordEntityExtractorTest {
     final String sentence = "Jim bought 300 shares of Acme Corp. in 2006.\n";
     final int numEntities = 4;
 
-    EntityExtractInterface ner = StanfordEntityExtractor.getInstance();
+    EntityExtractor ner = StanfordEntityExtractor.getInstance();
     List<Entity> entities = ner.annotate(sentence);
 
     assertEquals(numEntities, entities.size());

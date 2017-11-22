@@ -4,21 +4,18 @@ import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement;
-import com.chyikwei.app.ner.Entity;
-import com.chyikwei.app.ner.ObjectEntitiesInterface;
-import com.chyikwei.app.persistence.EntityPersisterInterface;
+import com.chyikwei.app.model.MultiFieldEntities;
+import com.chyikwei.app.persistence.EntityPersister;
 import com.chyikwei.app.persistence.dynamo.util.TableUtils;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import static com.chyikwei.app.persistence.dynamo.util.TableUtils.getOrcreateTable;
 
 /**
  * DynamoDB implementation of EntityPersister
  */
-public class DynamoEntityPersister implements EntityPersisterInterface {
+public class DynamoEntityPersister implements EntityPersister {
 
   private DynamoDB dynamoDB;
   private DynamoEntityPersisterConfig config;
@@ -66,14 +63,14 @@ public class DynamoEntityPersister implements EntityPersisterInterface {
    * {@inheritDoc}
    */
   @Override
-  public void persister(List<ObjectEntitiesInterface> objectEntities) {
+  public void persister(List<MultiFieldEntities> multiFieldEntities) {
 
-    for (ObjectEntitiesInterface obj: objectEntities) {
+    for (MultiFieldEntities obj: multiFieldEntities) {
       persistSingleObject(obj);
     }
   }
 
-  private void persistSingleObject(ObjectEntitiesInterface obj) {
+  private void persistSingleObject(MultiFieldEntities obj) {
     //TODO: change to batch write later
     Item item = TableUtils.objectEntitiesToDynamoItem(obj, config);
     dynamoTable.putItem(item);

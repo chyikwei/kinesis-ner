@@ -7,8 +7,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharacterCodingException;
 
+import com.chyikwei.app.model.*;
 import com.chyikwei.app.ner.*;
-import com.chyikwei.app.persistence.EntityPersisterInterface;
+import com.chyikwei.app.persistence.EntityPersister;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,14 +53,23 @@ public class StreamProcessor implements IRecordProcessor {
   private long nextCheckpointTimeInMillis;
 
   // extractor
-  private EntityExtractInterface entityExtractor;
+  private EntityExtractor entityExtractor;
 
   // persister
-  private EntityPersisterInterface entityPersiter;
+  private EntityPersister entityPersiter;
 
-  public StreamProcessor(EntityExtractInterface extractor, EntityPersisterInterface persiter) {
+  // factory to create text record
+  private TextRecordFactory textRecordFactory;
+
+  // factory to create obj entities
+  private MultiFieldEntitiesFactory multiFieldEntitiesFactory;
+
+  public StreamProcessor(EntityExtractor extractor, EntityPersister persister,
+                         TextRecordFactory textFactory, MultiFieldEntitiesFactory entsFactory) {
     entityExtractor = extractor;
-    entityPersiter = persiter;
+    entityPersiter = persister;
+    textRecordFactory = textFactory;
+    multiFieldEntitiesFactory = entsFactory;
   }
 
   /**
@@ -137,9 +147,9 @@ public class StreamProcessor implements IRecordProcessor {
 
     try {
       String data = decoder.decode(record.getData()).toString();
-      TextRecordInterface textRecord = NewsTextRecord.fromJson(data);
+      TextRecord textRecord = textRecordFactory.fromJson(data);
 
-      ObjectEntitiesInterface newsResult = new NewsEntities(textRecord.getUUID());
+      MultiFieldEntities newsResult = multiFieldEntitiesFactory.newObject(textRecord.getUUID());
 
       // extract etities from each field
       for (Pair<String, String> pair : textRecord.getTextFields()) {
@@ -163,7 +173,7 @@ public class StreamProcessor implements IRecordProcessor {
     }
   }
 
-  private void saveResult(ObjectEntitiesInterface ents) {
+  private void saveResult(MultiFieldEntities ents) {
     entityPersiter.persister(Arrays.asList(ents));
 
   }
