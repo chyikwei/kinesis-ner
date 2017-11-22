@@ -18,11 +18,19 @@ import com.chyikwei.app.persistence.dynamo.DynamoEntityPersisterConfig;
  */
 public class StreamProcessorFactory implements IRecordProcessorFactory {
 
-  private DynamoEntityPersisterConfig dynamoConfig;
-  private DynamoDB dynamoDB;
-  public StreamProcessorFactory(DynamoDB ddb, DynamoEntityPersisterConfig config) {
-    dynamoDB = ddb;
-    dynamoConfig = config;
+  private EntityPersister entitypersister;
+  private EntityExtractor entityExtractor;
+  private TextRecordFactory textRecordFactory;
+  private MultiFieldEntitiesFactory entitiesFactory;
+
+  public StreamProcessorFactory(EntityExtractor extractor,
+                                EntityPersister persister,
+                                TextRecordFactory textFactory,
+                                MultiFieldEntitiesFactory entFactory) {
+    entitypersister = persister;
+    entityExtractor = extractor;
+    textRecordFactory = textFactory;
+    entitiesFactory = entFactory;
   }
 
   /**
@@ -30,11 +38,6 @@ public class StreamProcessorFactory implements IRecordProcessorFactory {
    */
   @Override
   public IRecordProcessor createProcessor() {
-    EntityExtractor entityExtractor = StanfordEntityExtractor.getInstance();
-    EntityPersister persister = new DynamoEntityPersister(dynamoDB, dynamoConfig);
-    TextRecordFactory textFactory = NewsTextRecordFactory.getInstance();
-    MultiFieldEntitiesFactory objFactory = BaseMultiFieldEntitiesFactory.getInstance();
-
-    return new StreamProcessor(entityExtractor, persister, textFactory, objFactory);
+    return new StreamProcessor(entityExtractor, entitypersister, textRecordFactory, entitiesFactory);
   }
 }

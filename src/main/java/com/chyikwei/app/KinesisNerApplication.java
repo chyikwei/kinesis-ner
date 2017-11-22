@@ -8,6 +8,14 @@ import com.amazonaws.services.kinesis.AmazonKinesisClientBuilder;
 import com.amazonaws.services.kinesis.clientlibrary.interfaces.v2.IRecordProcessorFactory;
 import com.amazonaws.services.kinesis.clientlibrary.lib.worker.Worker;
 import com.chyikwei.app.kcl.StreamProcessorFactory;
+import com.chyikwei.app.model.BaseMultiFieldEntitiesFactory;
+import com.chyikwei.app.model.MultiFieldEntitiesFactory;
+import com.chyikwei.app.model.NewsTextRecordFactory;
+import com.chyikwei.app.model.TextRecordFactory;
+import com.chyikwei.app.ner.EntityExtractor;
+import com.chyikwei.app.ner.StanfordEntityExtractor;
+import com.chyikwei.app.persistence.EntityPersister;
+import com.chyikwei.app.persistence.dynamo.DynamoEntityPersister;
 import com.chyikwei.app.persistence.dynamo.DynamoEntityPersisterConfig;
 import com.chyikwei.app.util.StreamUtils;
 import org.apache.commons.logging.Log;
@@ -62,12 +70,23 @@ public class KinesisNerApplication {
     kclConfig.withRegionName(regions.getName());
     kclConfig.withInitialPositionInStream(InitialPositionInStream.LATEST);
 
+    // extractor
+    EntityExtractor extractor = StanfordEntityExtractor.getInstance();
+
     // persister
     DynamoEntityPersisterConfig persisterConfig = new DynamoEntityPersisterConfig(
         dynamoTableName, dynamoTableHashKey);
+    EntityPersister persister = new DynamoEntityPersister(ddb, persisterConfig);
 
-    // stream recordProcessor
-    IRecordProcessorFactory streamProcessorFactory = new StreamProcessorFactory(ddb, persisterConfig);
+    // text record factory
+    TextRecordFactory textFactory = NewsTextRecordFactory.getInstance();
+
+    // entities factory
+    MultiFieldEntitiesFactory entitiesFactory = BaseMultiFieldEntitiesFactory.getInstance();
+
+    // kinesis stream processor
+    IRecordProcessorFactory streamProcessorFactory = new StreamProcessorFactory(
+        extractor, persister, textFactory, entitiesFactory);
 
     LOG.info("start KCL worker...");
     final Worker worker = new Worker.Builder()
