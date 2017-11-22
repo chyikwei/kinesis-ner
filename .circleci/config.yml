@@ -4,6 +4,10 @@ jobs:
 
     working_directory: ~/kinesis-ner
 
+    environment:
+      # Customize the JVM maximum heap limit
+      MAVEN_OPTS: -Xmx1500m
+
     docker:
       - image: circleci/openjdk:8-jdk-browsers
 
@@ -13,6 +17,7 @@ jobs:
 
       - restore_cache:
           key: kinesis-ner-{{ checksum "pom.xml" }}
+          key: - kinesis-ner-
 
       - run: mvn dependency:go-offline
 
@@ -21,11 +26,7 @@ jobs:
             - ~/.m2
           key: kinesis-ner-{{ checksum "pom.xml" }}
 
-      - run: mvn package
+      - run: mvn integration-test
 
       - store_test_results:
           path: target/surefire-reports
-
-      - store_artifacts:
-          path: target/kinesis-ner-1.0-SNAPSHOT.jar
-  
