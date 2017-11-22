@@ -7,7 +7,7 @@ import edu.stanford.nlp.util.CoreMap;
 
 import java.util.*;
 
-public class StanfordEntityExtractor implements EntityExtractInterface{
+public class StanfordEntityExtractor implements EntityExtractor {
   public static final String NO_ENTITY = "O";
   private StanfordCoreNLP pipeline;
   private String entityType;

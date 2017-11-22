@@ -1,10 +1,12 @@
 package com.chyikwei.app.ner;
 
+import com.chyikwei.app.ner.Entity;
+
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-public interface ObjectEntitiesInterface {
+public interface ObjectEntities {
 
   /**
    * get UUID of the object

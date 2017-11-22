@@ -7,8 +7,8 @@ import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.local.embedded.DynamoDBEmbedded;
 import com.amazonaws.services.dynamodbv2.model.*;
 import com.chyikwei.app.ner.Entity;
-import com.chyikwei.app.ner.NewsEntities;
-import com.chyikwei.app.ner.ObjectEntitiesInterface;
+import com.chyikwei.app.ner.NewsObjectEntities;
+import com.chyikwei.app.ner.ObjectEntities;
 import com.chyikwei.app.persistence.dynamo.util.TableUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -66,13 +66,13 @@ public class DynamoEntityPersisterTest {
   @Test
   public void persister() throws Exception {
 
-    List<ObjectEntitiesInterface> objList = createNewsEntitiesList(100);
+    List<ObjectEntities> objList = createNewsEntitiesList(100);
     persister.initialize();
     persister.persister(objList);
 
     // verify DDB result
     Table table = dynamoDB.getTable(config.getTableName());
-    for (ObjectEntitiesInterface obj : objList) {
+    for (ObjectEntities obj : objList) {
       checkTableContains(table, obj);
     }
   }
@@ -99,16 +99,16 @@ public class DynamoEntityPersisterTest {
   }
 
 
-  private List<ObjectEntitiesInterface> createNewsEntitiesList(int size) {
-    List<ObjectEntitiesInterface> newsList = new LinkedList<>();
+  private List<ObjectEntities> createNewsEntitiesList(int size) {
+    List<ObjectEntities> newsList = new LinkedList<>();
     for (int i=0; i < size; i++) {
       newsList.add(createNewsEntities());
     }
     return newsList;
   }
 
-  private ObjectEntitiesInterface createNewsEntities() {
-    ObjectEntitiesInterface news = new NewsEntities(UUID.randomUUID());
+  private ObjectEntities createNewsEntities() {
+    ObjectEntities news = new NewsObjectEntities(UUID.randomUUID());
     for (int i=0; i < 10; i++) {
       String field = "Field_" + i;
       for (int j=0; j < 10; j++) {
@@ -124,7 +124,7 @@ public class DynamoEntityPersisterTest {
     return news;
   }
 
-  private void checkTableContains(Table table, ObjectEntitiesInterface obj) {
+  private void checkTableContains(Table table, ObjectEntities obj) {
 
     String key = obj.getUUID().toString();
     Item item = table.getItem(config.getHashKeyName(), key);

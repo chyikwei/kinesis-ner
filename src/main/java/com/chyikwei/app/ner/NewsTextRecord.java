@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.UUID;
 
-public class NewsTextRecord implements TextRecordInterface {
+public class NewsTextRecord implements TextRecord {
   public static final String UUID_FIELD_NAME = "uuid";
   public static final String TITLE_FIELD_NAME = "title";
   public static final String TEXT_FIELD_NAME = "text";

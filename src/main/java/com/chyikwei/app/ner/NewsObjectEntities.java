@@ -2,12 +2,12 @@ package com.chyikwei.app.ner;
 
 import java.util.*;
 
-public class NewsEntities implements ObjectEntitiesInterface{
+public class NewsObjectEntities implements ObjectEntities {
 
   private UUID uuid;
   private Map<String, Set<Entity>> entityMap;
 
-  public NewsEntities(UUID uid) {
+  public NewsObjectEntities(UUID uid) {
     this.uuid = uid;
     entityMap = new HashMap<>();
   }

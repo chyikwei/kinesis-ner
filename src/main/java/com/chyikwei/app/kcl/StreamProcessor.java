@@ -8,7 +8,11 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharacterCodingException;
 
 import com.chyikwei.app.ner.*;
-import com.chyikwei.app.persistence.EntityPersisterInterface;
+import com.chyikwei.app.ner.Entity;
+import com.chyikwei.app.ner.EntityExtractor;
+import com.chyikwei.app.ner.ObjectEntities;
+import com.chyikwei.app.ner.TextRecord;
+import com.chyikwei.app.persistence.EntityPersister;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,12 +56,12 @@ public class StreamProcessor implements IRecordProcessor {
   private long nextCheckpointTimeInMillis;
 
   // extractor
-  private EntityExtractInterface entityExtractor;
+  private EntityExtractor entityExtractor;
 
   // persister
-  private EntityPersisterInterface entityPersiter;
+  private EntityPersister entityPersiter;
 
-  public StreamProcessor(EntityExtractInterface extractor, EntityPersisterInterface persiter) {
+  public StreamProcessor(EntityExtractor extractor, EntityPersister persiter) {
     entityExtractor = extractor;
     entityPersiter = persiter;
   }
@@ -137,9 +141,9 @@ public class StreamProcessor implements IRecordProcessor {
 
     try {
       String data = decoder.decode(record.getData()).toString();
-      TextRecordInterface textRecord = NewsTextRecord.fromJson(data);
+      TextRecord textRecord = NewsTextRecord.fromJson(data);
 
-      ObjectEntitiesInterface newsResult = new NewsEntities(textRecord.getUUID());
+      ObjectEntities newsResult = new NewsObjectEntities(textRecord.getUUID());
 
       // extract etities from each field
       for (Pair<String, String> pair : textRecord.getTextFields()) {
@@ -163,7 +167,7 @@ public class StreamProcessor implements IRecordProcessor {
     }
   }
 
-  private void saveResult(ObjectEntitiesInterface ents) {
+  private void saveResult(ObjectEntities ents) {
     entityPersiter.persister(Arrays.asList(ents));
 
   }

@@ -6,7 +6,7 @@ import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.model.*;
 
 import com.chyikwei.app.ner.Entity;
-import com.chyikwei.app.ner.ObjectEntitiesInterface;
+import com.chyikwei.app.ner.ObjectEntities;
 import com.chyikwei.app.persistence.dynamo.DynamoEntityPersisterConfig;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -94,13 +94,13 @@ public class TableUtils {
 
   /**
    *
-   * Create DynamoDB Item from ObjectEntitiesInterface
+   * Create DynamoDB Item from ObjectEntities
    *
    * @param obj entities inside an object
    * @param config dynamoDB config
    * @return dynamoDB item
    */
-  public static Item objectEntitiesToDynamoItem(ObjectEntitiesInterface obj, DynamoEntityPersisterConfig config) {
+  public static Item objectEntitiesToDynamoItem(ObjectEntities obj, DynamoEntityPersisterConfig config) {
 
     Item item = new Item().withPrimaryKey(config.getHashKeyName(), obj.getUUID().toString());
 

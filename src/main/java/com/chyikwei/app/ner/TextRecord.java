@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import org.apache.commons.lang3.tuple.Pair;
 
-public interface TextRecordInterface {
+public interface TextRecord {
 
   /**
    * UUID of text record

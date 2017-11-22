@@ -9,19 +9,19 @@ import java.util.UUID;
 
 import static org.junit.Assert.*;
 
-public class NewsEntitiesTest {
+public class NewsObjectEntitiesTest {
 
   static final int numField = 10;
   static final int numEntities = 20;
 
   UUID testId;
-  ObjectEntitiesInterface newsEntities;
+  ObjectEntities newsEntities;
 
 
   @Before
   public void setUp() throws Exception {
     testId = UUID.randomUUID();
-    newsEntities = new NewsEntities(testId);
+    newsEntities = new NewsObjectEntities(testId);
 
     for (int i=0; i < numField; i++) {
       for (int j=0; j < numEntities; j++) {
