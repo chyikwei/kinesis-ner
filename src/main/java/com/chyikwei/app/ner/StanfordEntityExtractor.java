@@ -1,5 +1,6 @@
 package com.chyikwei.app.ner;
 
+import com.chyikwei.app.model.Entity;
 import edu.stanford.nlp.ling.CoreAnnotations.*;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.pipeline.*;
@@ -16,11 +17,17 @@ public class StanfordEntityExtractor implements EntityExtractor {
 
   private StanfordEntityExtractor() {
     Properties props = new Properties();
+    // NER pipeline reqired the following steps
     props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner");
     pipeline = new StanfordCoreNLP(props);
     tokenBuilder = new StringBuilder();
   }
 
+  /**
+   * get StanfordEntityExtractor instance
+   *
+   * @return StanfordEntityExtractor
+   */
   public static StanfordEntityExtractor getInstance(){
     if (instance == null) {
       instance = new StanfordEntityExtractor();
@@ -28,6 +35,12 @@ public class StanfordEntityExtractor implements EntityExtractor {
     return instance;
   }
 
+  /**
+   * Annotate input and return a list of entities in the text
+   *
+   * @param text
+   * @return
+   */
   @Override
   public List<Entity> annotate(String text) {
     Annotation document = new Annotation(text);

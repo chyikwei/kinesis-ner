@@ -1,27 +1,39 @@
-package com.chyikwei.app.ner;
+package com.chyikwei.app.model;
 
 import java.util.*;
 
-public class NewsObjectEntities implements ObjectEntities {
+/**
+ * Basic implementation of MultiFieldEntities
+ */
+public class BaseMultiFieldEntities implements MultiFieldEntities {
 
   private UUID uuid;
   private Map<String, Set<Entity>> entityMap;
 
-  public NewsObjectEntities(UUID uid) {
+  public BaseMultiFieldEntities(UUID uid) {
     this.uuid = uid;
     entityMap = new HashMap<>();
   }
 
+  /**
+   *{@inheritDoc}
+   */
   @Override
   public UUID getUUID() {
     return uuid;
   }
 
+  /**
+   *{@inheritDoc}
+   */
   @Override
   public Map<String, Set<Entity>> getEntities() {
     return entityMap;
   }
 
+  /**
+   *{@inheritDoc}
+   */
   @Override
   public boolean addEntities(String field, Entity entity) {
     Set<Entity> set;

@@ -4,7 +4,7 @@ import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement;
-import com.chyikwei.app.ner.ObjectEntities;
+import com.chyikwei.app.model.MultiFieldEntities;
 import com.chyikwei.app.persistence.EntityPersister;
 import com.chyikwei.app.persistence.dynamo.util.TableUtils;
 
@@ -63,14 +63,14 @@ public class DynamoEntityPersister implements EntityPersister {
    * {@inheritDoc}
    */
   @Override
-  public void persister(List<ObjectEntities> objectEntities) {
+  public void persister(List<MultiFieldEntities> multiFieldEntities) {
 
-    for (ObjectEntities obj: objectEntities) {
+    for (MultiFieldEntities obj: multiFieldEntities) {
       persistSingleObject(obj);
     }
   }
 
-  private void persistSingleObject(ObjectEntities obj) {
+  private void persistSingleObject(MultiFieldEntities obj) {
     //TODO: change to batch write later
     Item item = TableUtils.objectEntitiesToDynamoItem(obj, config);
     dynamoTable.putItem(item);

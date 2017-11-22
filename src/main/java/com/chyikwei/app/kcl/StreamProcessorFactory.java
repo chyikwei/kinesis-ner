@@ -3,8 +3,11 @@ package com.chyikwei.app.kcl;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.kinesis.clientlibrary.interfaces.v2.IRecordProcessor;
 import com.amazonaws.services.kinesis.clientlibrary.interfaces.v2.IRecordProcessorFactory;
-import com.chyikwei.app.ner.EntityExtractor;
-import com.chyikwei.app.ner.StanfordEntityExtractor;
+import com.chyikwei.app.model.BaseMultiFieldEntitiesFactory;
+import com.chyikwei.app.model.NewsTextRecordFactory;
+import com.chyikwei.app.model.MultiFieldEntitiesFactory;
+import com.chyikwei.app.model.TextRecordFactory;
+import com.chyikwei.app.ner.*;
 import com.chyikwei.app.persistence.EntityPersister;
 import com.chyikwei.app.persistence.dynamo.DynamoEntityPersister;
 import com.chyikwei.app.persistence.dynamo.DynamoEntityPersisterConfig;
@@ -29,6 +32,9 @@ public class StreamProcessorFactory implements IRecordProcessorFactory {
   public IRecordProcessor createProcessor() {
     EntityExtractor entityExtractor = StanfordEntityExtractor.getInstance();
     EntityPersister persister = new DynamoEntityPersister(dynamoDB, dynamoConfig);
-    return new StreamProcessor(entityExtractor, persister);
+    TextRecordFactory textFactory = NewsTextRecordFactory.getInstance();
+    MultiFieldEntitiesFactory objFactory = BaseMultiFieldEntitiesFactory.getInstance();
+
+    return new StreamProcessor(entityExtractor, persister, textFactory, objFactory);
   }
 }

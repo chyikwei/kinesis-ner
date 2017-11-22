@@ -7,11 +7,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharacterCodingException;
 
+import com.chyikwei.app.model.*;
 import com.chyikwei.app.ner.*;
-import com.chyikwei.app.ner.Entity;
-import com.chyikwei.app.ner.EntityExtractor;
-import com.chyikwei.app.ner.ObjectEntities;
-import com.chyikwei.app.ner.TextRecord;
 import com.chyikwei.app.persistence.EntityPersister;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.logging.Log;
@@ -61,9 +58,18 @@ public class StreamProcessor implements IRecordProcessor {
   // persister
   private EntityPersister entityPersiter;
 
-  public StreamProcessor(EntityExtractor extractor, EntityPersister persiter) {
+  // factory to create text record
+  private TextRecordFactory textRecordFactory;
+
+  // factory to create obj entities
+  private MultiFieldEntitiesFactory multiFieldEntitiesFactory;
+
+  public StreamProcessor(EntityExtractor extractor, EntityPersister persister,
+                         TextRecordFactory textFactory, MultiFieldEntitiesFactory entsFactory) {
     entityExtractor = extractor;
-    entityPersiter = persiter;
+    entityPersiter = persister;
+    textRecordFactory = textFactory;
+    multiFieldEntitiesFactory = entsFactory;
   }
 
   /**
@@ -141,9 +147,9 @@ public class StreamProcessor implements IRecordProcessor {
 
     try {
       String data = decoder.decode(record.getData()).toString();
-      TextRecord textRecord = NewsTextRecord.fromJson(data);
+      TextRecord textRecord = textRecordFactory.fromJson(data);
 
-      ObjectEntities newsResult = new NewsObjectEntities(textRecord.getUUID());
+      MultiFieldEntities newsResult = multiFieldEntitiesFactory.newObject(textRecord.getUUID());
 
       // extract etities from each field
       for (Pair<String, String> pair : textRecord.getTextFields()) {
@@ -167,7 +173,7 @@ public class StreamProcessor implements IRecordProcessor {
     }
   }
 
-  private void saveResult(ObjectEntities ents) {
+  private void saveResult(MultiFieldEntities ents) {
     entityPersiter.persister(Arrays.asList(ents));
 
   }

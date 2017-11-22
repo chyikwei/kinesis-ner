@@ -1,4 +1,4 @@
-package com.chyikwei.app.ner;
+package com.chyikwei.app.model;
 
 import com.google.gson.Gson;
 import org.apache.commons.lang3.tuple.Pair;

@@ -6,9 +6,9 @@ import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.local.embedded.DynamoDBEmbedded;
 import com.amazonaws.services.dynamodbv2.model.*;
-import com.chyikwei.app.ner.Entity;
-import com.chyikwei.app.ner.NewsObjectEntities;
-import com.chyikwei.app.ner.ObjectEntities;
+import com.chyikwei.app.model.Entity;
+import com.chyikwei.app.model.BaseMultiFieldEntities;
+import com.chyikwei.app.model.MultiFieldEntities;
 import com.chyikwei.app.persistence.dynamo.util.TableUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -66,13 +66,13 @@ public class DynamoEntityPersisterTest {
   @Test
   public void persister() throws Exception {
 
-    List<ObjectEntities> objList = createNewsEntitiesList(100);
+    List<MultiFieldEntities> objList = createNewsEntitiesList(100);
     persister.initialize();
     persister.persister(objList);
 
     // verify DDB result
     Table table = dynamoDB.getTable(config.getTableName());
-    for (ObjectEntities obj : objList) {
+    for (MultiFieldEntities obj : objList) {
       checkTableContains(table, obj);
     }
   }
@@ -99,16 +99,16 @@ public class DynamoEntityPersisterTest {
   }
 
 
-  private List<ObjectEntities> createNewsEntitiesList(int size) {
-    List<ObjectEntities> newsList = new LinkedList<>();
+  private List<MultiFieldEntities> createNewsEntitiesList(int size) {
+    List<MultiFieldEntities> newsList = new LinkedList<>();
     for (int i=0; i < size; i++) {
       newsList.add(createNewsEntities());
     }
     return newsList;
   }
 
-  private ObjectEntities createNewsEntities() {
-    ObjectEntities news = new NewsObjectEntities(UUID.randomUUID());
+  private MultiFieldEntities createNewsEntities() {
+    MultiFieldEntities news = new BaseMultiFieldEntities(UUID.randomUUID());
     for (int i=0; i < 10; i++) {
       String field = "Field_" + i;
       for (int j=0; j < 10; j++) {
@@ -124,7 +124,7 @@ public class DynamoEntityPersisterTest {
     return news;
   }
 
-  private void checkTableContains(Table table, ObjectEntities obj) {
+  private void checkTableContains(Table table, MultiFieldEntities obj) {
 
     String key = obj.getUUID().toString();
     Item item = table.getItem(config.getHashKeyName(), key);

@@ -1,12 +1,15 @@
-package com.chyikwei.app.ner;
+package com.chyikwei.app.model;
 
-import com.chyikwei.app.ner.Entity;
+import com.chyikwei.app.model.Entity;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-public interface ObjectEntities {
+/**
+ * Object to store entities from different fields
+ */
+public interface MultiFieldEntities {
 
   /**
    * get UUID of the object
@@ -16,14 +19,14 @@ public interface ObjectEntities {
   /**
    * get entities in the object (field -> set of entities)
    *
-   * @return map of entities
+   * @return map of field to entities
    */
   public Map<String, Set<Entity>> getEntities();
 
   /**
    * add entities
    *
-   * @param field type of this new entity
+   * @param field field in the object
    * @param entity value of the entity
    *
    * @return true if this is a new entity. false if entity already stored

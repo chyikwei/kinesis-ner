@@ -1,4 +1,4 @@
-package com.chyikwei.app.ner;
+package com.chyikwei.app.model;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;

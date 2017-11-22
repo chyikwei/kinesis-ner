@@ -1,4 +1,4 @@
-package com.chyikwei.app.ner;
+package com.chyikwei.app.model;
 
 import java.util.List;
 import java.util.UUID;

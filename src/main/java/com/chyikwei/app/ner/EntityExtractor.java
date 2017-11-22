@@ -1,6 +1,6 @@
 package com.chyikwei.app.ner;
 
-import com.chyikwei.app.ner.Entity;
+import com.chyikwei.app.model.Entity;
 
 import java.util.List;
 

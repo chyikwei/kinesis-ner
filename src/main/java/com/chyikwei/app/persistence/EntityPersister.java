@@ -2,7 +2,7 @@ package com.chyikwei.app.persistence;
 
 import java.util.List;
 
-import com.chyikwei.app.ner.ObjectEntities;
+import com.chyikwei.app.model.MultiFieldEntities;
 
 
 /**
@@ -18,7 +18,7 @@ public interface EntityPersister {
   /**
    * Persist list of objects
    */
-  public void persister(List<ObjectEntities> objectEntities);
+  public void persister(List<MultiFieldEntities> multiFieldEntities);
 
   /**
    * Persister should flush its buffer and persist all pending records
